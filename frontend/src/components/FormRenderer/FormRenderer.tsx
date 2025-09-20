@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface FormRendererProps {
@@ -58,12 +59,12 @@ const FormRenderer = ({ form, onSubmit, isPreview = false }: FormRendererProps) 
       case "text":
         return (
           <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id}>
+            <Label htmlFor={field.id.toString()}>
               {field.label}
               {field.required && <span className="text-destructive ml-1">*</span>}
             </Label>
             <Input
-              id={field.id}
+              id={field.id.toString()}
               value={formData[field.id] as string || ""}
               onChange={(e) => handleInputChange(field.id, e.target.value)}
               className={hasError ? "border-destructive" : ""}
@@ -75,12 +76,12 @@ const FormRenderer = ({ form, onSubmit, isPreview = false }: FormRendererProps) 
       case "textarea":
         return (
           <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id}>
+            <Label htmlFor={field.id.toString()}>
               {field.label}
               {field.required && <span className="text-destructive ml-1">*</span>}
             </Label>
             <Textarea
-              id={field.id}
+              id={field.id.toString()}
               value={formData[field.id] as string || ""}
               onChange={(e) => handleInputChange(field.id, e.target.value)}
               className={hasError ? "border-destructive" : ""}
@@ -146,6 +147,32 @@ const FormRenderer = ({ form, onSubmit, isPreview = false }: FormRendererProps) 
                 </div>
               ))}
             </RadioGroup>
+            {hasError && <p className="text-sm text-destructive">{errorMessage}</p>}
+          </div>
+        );
+
+      case "select":
+        return (
+          <div key={field.id} className="space-y-2">
+            <Label htmlFor={field.id.toString()}>
+              {field.label}
+              {field.required && <span className="text-destructive ml-1">*</span>}
+            </Label>
+            <Select
+              value={formData[field.id] as string || ""}
+              onValueChange={(value) => handleInputChange(field.id, value)}
+            >
+              <SelectTrigger className={hasError ? "border-destructive" : ""}>
+                <SelectValue placeholder="Select an option" />
+              </SelectTrigger>
+              <SelectContent>
+                {field.options?.map((option, index) => (
+                  <SelectItem key={index} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {hasError && <p className="text-sm text-destructive">{errorMessage}</p>}
           </div>
         );

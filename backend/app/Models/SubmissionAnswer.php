@@ -23,7 +23,7 @@ class SubmissionAnswer extends Model
      */
     public function submission(): BelongsTo
     {
-        return $this->belongsTo(FormSubmission::class);
+        return $this->belongsTo(FormSubmission::class, 'submission_id');
     }
 
     /**

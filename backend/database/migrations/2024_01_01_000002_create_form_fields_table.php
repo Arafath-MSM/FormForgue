@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('form_id')->constrained()->onDelete('cascade');
             $table->string('label');
-            $table->enum('type', ['text', 'textarea', 'checkbox', 'radio']);
+            $table->enum('type', ['text', 'textarea', 'checkbox', 'radio', 'select']);
             $table->json('options')->nullable();
             $table->boolean('required')->default(false);
             $table->integer('order')->default(0);

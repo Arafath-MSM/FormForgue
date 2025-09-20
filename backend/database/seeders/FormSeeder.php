@@ -68,7 +68,7 @@ class FormSeeder extends Seeder
         FormField::create([
             'form_id' => $eventForm->id,
             'label' => 'Event Type',
-            'type' => 'radio',
+            'type' => 'select',
             'required' => true,
             'options' => ['Workshop', 'Conference', 'Seminar', 'Networking'],
             'order' => 3,

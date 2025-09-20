@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode, useState, useEffect } from "react";
+import React, { createContext, useContext, ReactNode, useState, useEffect, useCallback, useMemo } from "react";
 import { Form, FormSubmission, CreateFormData } from "@/types/form";
 import { apiService } from "@/services/api";
 
@@ -6,6 +6,7 @@ interface FormContextType {
   forms: Form[];
   submissions: FormSubmission[];
   loading: boolean;
+  submissionsLoading: boolean;
   error: string | null;
   addForm: (formData: CreateFormData) => Promise<Form>;
   updateForm: (formId: number, formData: CreateFormData) => Promise<void>;
@@ -23,24 +24,38 @@ export function FormProvider({ children }: { children: ReactNode }) {
   const [forms, setForms] = useState<Form[]>([]);
   const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
   const [loading, setLoading] = useState(false);
+  const [submissionsLoading, setSubmissionsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formsLoaded, setFormsLoaded] = useState(false);
 
-  const loadForms = async () => {
+  const loadForms = useCallback(async () => {
+    // Prevent duplicate calls
+    if (formsLoaded || loading) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
       const formsData = await apiService.getForms();
       setForms(formsData);
+      setFormsLoaded(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load forms');
     } finally {
       setLoading(false);
     }
-  };
+  }, [formsLoaded, loading]);
 
-  const loadFormSubmissions = async (formId: number) => {
+  const loadFormSubmissions = useCallback(async (formId: number) => {
+    // Check if submissions for this form are already loaded
+    const existingSubmissions = submissions.filter(s => s.form_id === formId);
+    if (existingSubmissions.length > 0) {
+      return; // Already loaded, no need to fetch again
+    }
+
     try {
-      setLoading(true);
+      setSubmissionsLoading(true);
       setError(null);
       const submissionsData = await apiService.getFormSubmissions(formId);
       // Update submissions for this form
@@ -51,9 +66,9 @@ export function FormProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load submissions');
     } finally {
-      setLoading(false);
+      setSubmissionsLoading(false);
     }
-  };
+  }, [submissions]);
 
   const addForm = async (formData: CreateFormData) => {
     try {
@@ -128,21 +143,24 @@ export function FormProvider({ children }: { children: ReactNode }) {
     loadForms();
   }, []);
 
+  const contextValue = useMemo(() => ({
+    forms,
+    submissions,
+    loading,
+    submissionsLoading,
+    error,
+    addForm,
+    updateForm,
+    deleteForm,
+    getForm,
+    addSubmission,
+    getFormSubmissions,
+    loadForms,
+    loadFormSubmissions,
+  }), [forms, submissions, loading, submissionsLoading, error, addForm, updateForm, deleteForm, getForm, addSubmission, getFormSubmissions, loadForms, loadFormSubmissions]);
+
   return (
-    <FormContext.Provider value={{
-      forms,
-      submissions,
-      loading,
-      error,
-      addForm,
-      updateForm,
-      deleteForm,
-      getForm,
-      addSubmission,
-      getFormSubmissions,
-      loadForms,
-      loadFormSubmissions,
-    }}>
+    <FormContext.Provider value={contextValue}>
       {children}
     </FormContext.Provider>
   );

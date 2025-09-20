@@ -66,6 +66,7 @@ class SubmissionController extends Controller
                     $rules[] = 'string';
                     break;
                 case 'radio':
+                case 'select':
                     $rules[] = 'string';
                     if ($field->options) {
                         $rules[] = 'in:' . implode(',', $field->options);

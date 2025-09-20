@@ -12,18 +12,33 @@ import { Label } from "@/components/ui/label";
 const Submissions = () => {
   const { formId } = useParams<{ formId: string }>();
   const navigate = useNavigate();
-  const { getForm, getFormSubmissions, loadFormSubmissions } = useFormContext();
+  const { getForm, getFormSubmissions, loadFormSubmissions, loading, submissionsLoading } = useFormContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSubmission, setSelectedSubmission] = useState<string | null>(null);
 
-  const form = formId ? getForm(formId) : null;
-  const submissions = formId ? getFormSubmissions(formId) : [];
+  const form = formId ? getForm(parseInt(formId)) : null;
+  const submissions = formId ? getFormSubmissions(parseInt(formId)) : [];
 
   useEffect(() => {
     if (formId) {
-      loadFormSubmissions(formId);
+      // Load submissions for the form (only if not already loaded)
+      const formSubmissions = getFormSubmissions(parseInt(formId));
+      if (formSubmissions.length === 0) {
+        loadFormSubmissions(parseInt(formId));
+      }
     }
-  }, [formId, loadFormSubmissions]);
+  }, [formId, loadFormSubmissions, getFormSubmissions]);
+
+
+  if (loading || submissionsLoading) {
+    return (
+      <div className="p-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-4">Loading...</h1>
+        </div>
+      </div>
+    );
+  }
 
   if (!form) {
     return (
@@ -38,23 +53,20 @@ const Submissions = () => {
 
   const filteredSubmissions = submissions.filter(submission => {
     if (!searchTerm) return true;
-    return Object.values(submission.data).some(value => 
-      String(value).toLowerCase().includes(searchTerm.toLowerCase())
+    return submission.answers.some(answer => 
+      String(answer.answer).toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
 
   const selectedSubmissionData = selectedSubmission 
-    ? submissions.find(s => s.id === selectedSubmission)
+    ? submissions.find(s => s.id.toString() === selectedSubmission)
     : null;
 
-  const renderFieldValue = (fieldId: string, value: any) => {
-    const field = form.fields.find(f => f.id === fieldId);
-    if (!field) return String(value);
-
-    if (Array.isArray(value)) {
-      return value.join(", ");
+  const renderFieldValue = (answer: any) => {
+    if (Array.isArray(answer.answer)) {
+      return answer.answer.join(", ");
     }
-    return String(value);
+    return String(answer.answer);
   };
 
   return (
@@ -122,8 +134,8 @@ const Submissions = () => {
               <CardContent className="p-0">
                 <div className="space-y-1">
                   {filteredSubmissions.map((submission, index) => {
-                    const isSelected = selectedSubmission === submission.id;
-                    const displayData = Object.entries(submission.data).slice(0, 2);
+                    const isSelected = selectedSubmission === submission.id.toString();
+                    const displayAnswers = submission.answers.slice(0, 2);
                     
                     return (
                       <div
@@ -131,29 +143,29 @@ const Submissions = () => {
                         className={`p-4 cursor-pointer border-b hover:bg-muted/50 transition-colors ${
                           isSelected ? "bg-muted" : ""
                         }`}
-                        onClick={() => setSelectedSubmission(submission.id)}
+                        onClick={() => setSelectedSubmission(submission.id.toString())}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-medium">Submission #{index + 1}</h4>
                           <span className="text-xs text-muted-foreground">
-                            {new Date(submission.submittedAt).toLocaleDateString()}
+                            {new Date(submission.created_at).toLocaleDateString()}
                           </span>
                         </div>
                         <div className="space-y-1">
-                          {displayData.map(([fieldId, value]) => {
-                            const field = form.fields.find(f => f.id === fieldId);
+                          {displayAnswers.map((answer) => {
+                            const field = form.fields.find(f => f.id === answer.field_id);
                             return (
-                              <div key={fieldId} className="text-sm">
+                              <div key={answer.id} className="text-sm">
                                 <span className="font-medium">{field?.label}: </span>
                                 <span className="text-muted-foreground">
-                                  {renderFieldValue(fieldId, value)}
+                                  {renderFieldValue(answer)}
                                 </span>
                               </div>
                             );
                           })}
-                          {Object.keys(submission.data).length > 2 && (
+                          {submission.answers.length > 2 && (
                             <p className="text-xs text-muted-foreground">
-                              +{Object.keys(submission.data).length - 2} more fields
+                              +{submission.answers.length - 2} more fields
                             </p>
                           )}
                         </div>
@@ -177,13 +189,13 @@ const Submissions = () => {
                       <div>
                         <span className="font-medium">Submitted:</span>
                         <p className="text-muted-foreground">
-                          {new Date(selectedSubmissionData.submittedAt).toLocaleString()}
+                          {new Date(selectedSubmissionData.created_at).toLocaleString()}
                         </p>
                       </div>
                       <div>
                         <span className="font-medium">IP Address:</span>
                         <p className="text-muted-foreground">
-                          {selectedSubmissionData.ipAddress || "N/A"}
+                          {selectedSubmissionData.ip_address || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -191,13 +203,13 @@ const Submissions = () => {
                     <div>
                       <h4 className="font-medium mb-4">Form Data</h4>
                       <div className="space-y-4">
-                        {Object.entries(selectedSubmissionData.data).map(([fieldId, value]) => {
-                          const field = form.fields.find(f => f.id === fieldId);
+                        {selectedSubmissionData.answers.map((answer) => {
+                          const field = form.fields.find(f => f.id === answer.field_id);
                           return (
-                            <div key={fieldId} className="space-y-1">
+                            <div key={answer.id} className="space-y-1">
                               <Label className="font-medium">{field?.label}</Label>
                               <div className="p-3 bg-muted rounded-md">
-                                {renderFieldValue(fieldId, value)}
+                                {renderFieldValue(answer)}
                               </div>
                             </div>
                           );

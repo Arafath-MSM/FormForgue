@@ -4,10 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Edit, Eye, Trash2, Plus, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { useEffect } from "react";
 
 const Forms = () => {
-  const { forms, deleteForm, getFormSubmissions } = useFormContext();
+  const { forms, deleteForm, getFormSubmissions, loadForms, loadFormSubmissions } = useFormContext();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Load forms when component mounts (only if not already loaded)
+    if (forms.length === 0) {
+      loadForms();
+    }
+  }, [forms.length, loadForms]);
 
   const handleEdit = (formId: number) => {
     navigate(`/builder?edit=${formId}`);

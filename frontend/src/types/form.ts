@@ -1,13 +1,22 @@
 export interface FormField {
   id: number;
   form_id: number;
-  type: 'text' | 'textarea' | 'checkbox' | 'radio';
+  type: 'text' | 'textarea' | 'checkbox' | 'radio' | 'select';
   label: string;
   required: boolean;
   options?: string[];
   order: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface FormFieldBuilder {
+  id: number;
+  type: 'text' | 'textarea' | 'checkbox' | 'radio' | 'select';
+  label: string;
+  required: boolean;
+  options?: string[];
+  order: number;
 }
 
 export interface Form {
@@ -48,7 +57,7 @@ export interface CreateFormData {
   description?: string;
   fields: {
     label: string;
-    type: 'text' | 'textarea' | 'checkbox' | 'radio';
+    type: 'text' | 'textarea' | 'checkbox' | 'radio' | 'select';
     required: boolean;
     options?: string[];
     order: number;

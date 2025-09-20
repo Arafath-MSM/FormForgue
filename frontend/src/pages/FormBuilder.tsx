@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFormContext } from "@/contexts/FormContext";
-import { Form, FormField } from "@/types/form";
+import { Form, FormField, FormFieldBuilder } from "@/types/form";
 import FieldTypeButton from "@/components/FormBuilder/FieldTypeButton";
 import FieldEditor from "@/components/FormBuilder/FieldEditor";
 import { useToast } from "@/hooks/use-toast";
@@ -19,40 +19,49 @@ const FormBuilder = () => {
   const editFormId = searchParams.get("edit");
   const [formTitle, setFormTitle] = useState("");
   const [formDescription, setFormDescription] = useState("");
-  const [fields, setFields] = useState<FormField[]>([]);
+  const [fields, setFields] = useState<FormFieldBuilder[]>([]);
 
   useEffect(() => {
     if (editFormId) {
-      const form = getForm(editFormId);
+      const form = getForm(parseInt(editFormId));
       if (form) {
         setFormTitle(form.title);
         setFormDescription(form.description || "");
-        setFields(form.fields);
+        // Convert FormField to FormFieldBuilder
+        const builderFields: FormFieldBuilder[] = form.fields.map(field => ({
+          id: field.id,
+          type: field.type,
+          label: field.label,
+          required: field.required,
+          options: field.options,
+          order: field.order
+        }));
+        setFields(builderFields);
       }
     }
   }, [editFormId, getForm]);
 
-  const addField = (type: FormField["type"]) => {
-    const newField: FormField = {
-      id: Date.now().toString(),
+  const addField = (type: FormFieldBuilder["type"]) => {
+    const newField: FormFieldBuilder = {
+      id: Date.now(), // Use numeric ID for new fields
       type,
       label: `${type.charAt(0).toUpperCase() + type.slice(1)} Field`,
       required: false,
       order: fields.length,
-      ...(type === "checkbox" || type === "radio" ? { options: ["Option 1", "Option 2"] } : {})
+      ...(type === "checkbox" || type === "radio" || type === "select" ? { options: ["Option 1", "Option 2"] } : {})
     };
     setFields([...fields, newField]);
   };
 
-  const updateField = (fieldId: string, updatedField: FormField) => {
+  const updateField = (fieldId: number, updatedField: FormFieldBuilder) => {
     setFields(fields.map(field => field.id === fieldId ? updatedField : field));
   };
 
-  const deleteField = (fieldId: string) => {
+  const deleteField = (fieldId: number) => {
     setFields(fields.filter(field => field.id !== fieldId));
   };
 
-  const moveField = (fieldId: string, direction: "up" | "down") => {
+  const moveField = (fieldId: number, direction: "up" | "down") => {
     const index = fields.findIndex(field => field.id === fieldId);
     if (index === -1) return;
 
@@ -66,6 +75,19 @@ const FormBuilder = () => {
         field.order = i;
       });
       setFields(newFields);
+    }
+  };
+
+  const copyField = (fieldId: number) => {
+    const fieldToCopy = fields.find(field => field.id === fieldId);
+    if (fieldToCopy) {
+      const newField: FormFieldBuilder = {
+        ...fieldToCopy,
+        id: Date.now(),
+        label: `${fieldToCopy.label} (Copy)`,
+        order: fields.length
+      };
+      setFields([...fields, newField]);
     }
   };
 
@@ -86,7 +108,7 @@ const FormBuilder = () => {
     };
 
     if (editFormId) {
-      updateForm(editFormId, formData);
+      updateForm(parseInt(editFormId), formData);
       toast({
         title: "Success",
         description: "Form updated successfully"
@@ -140,6 +162,7 @@ const FormBuilder = () => {
             <FieldTypeButton type="textarea" onClick={() => addField("textarea")} />
             <FieldTypeButton type="checkbox" onClick={() => addField("checkbox")} />
             <FieldTypeButton type="radio" onClick={() => addField("radio")} />
+            <FieldTypeButton type="select" onClick={() => addField("select")} />
           </CardContent>
         </Card>
 
@@ -160,6 +183,7 @@ const FormBuilder = () => {
                     field={field}
                     onUpdate={(updatedField) => updateField(field.id, updatedField)}
                     onDelete={() => deleteField(field.id)}
+                    onCopy={() => copyField(field.id)}
                     onMoveUp={() => moveField(field.id, "up")}
                     onMoveDown={() => moveField(field.id, "down")}
                     canMoveUp={index > 0}

@@ -5,12 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FormField } from "@/types/form";
+import { FormFieldBuilder } from "@/types/form";
 import { ChevronUp, ChevronDown, Trash2, Plus, Trash, Copy } from "lucide-react";
 
 interface FieldEditorProps {
-  field: FormField;
-  onUpdate: (field: FormField) => void;
+  field: FormFieldBuilder;
+  onUpdate: (field: FormFieldBuilder) => void;
   onDelete: () => void;
   onCopy: () => void;
   onMoveUp: () => void;
@@ -31,7 +31,7 @@ const FieldEditor = ({
 }: FieldEditorProps) => {
   const [newOption, setNewOption] = useState("");
 
-  const updateField = (updates: Partial<FormField>) => {
+  const updateField = (updates: Partial<FormFieldBuilder>) => {
     onUpdate({ ...field, ...updates });
   };
 
