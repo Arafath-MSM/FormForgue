@@ -40,7 +40,7 @@ export interface FormSubmission {
 }
 
 export interface FormSubmissionData {
-  [fieldId: string]: string | string[];
+  [fieldId: number]: string | string[];
 }
 
 export interface CreateFormData {

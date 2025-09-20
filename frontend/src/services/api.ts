@@ -66,9 +66,15 @@ class ApiService {
   }
 
   async submitForm(formId: number, submissionData: FormSubmissionData): Promise<FormSubmission> {
+    // Convert number keys to strings for Laravel API
+    const dataWithStringKeys: Record<string, string | string[]> = {};
+    Object.entries(submissionData).forEach(([key, value]) => {
+      dataWithStringKeys[key] = value;
+    });
+    
     return this.request<FormSubmission>(`/forms/${formId}/submissions`, {
       method: 'POST',
-      body: JSON.stringify({ data: submissionData }),
+      body: JSON.stringify({ data: dataWithStringKeys }),
     });
   }
 }

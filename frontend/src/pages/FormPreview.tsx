@@ -12,7 +12,7 @@ const FormPreview = () => {
   const { getForm, addSubmission } = useFormContext();
   const { toast } = useToast();
 
-  const form = formId ? getForm(formId) : null;
+  const form = formId ? getForm(parseInt(formId)) : null;
 
   if (!form) {
     return (
@@ -27,11 +27,7 @@ const FormPreview = () => {
 
   const handleSubmit = async (data: FormSubmissionData) => {
     try {
-      await addSubmission({
-        formId: form.id,
-        data,
-        ipAddress: "127.0.0.1" // Mock IP for demo
-      });
+      await addSubmission(form.id, data);
       
       toast({
         title: "Success!",

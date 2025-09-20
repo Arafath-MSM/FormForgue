@@ -16,9 +16,9 @@ interface FormRendererProps {
 
 const FormRenderer = ({ form, onSubmit, isPreview = false }: FormRendererProps) => {
   const [formData, setFormData] = useState<FormSubmissionData>({});
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<number, string>>({});
 
-  const handleInputChange = (fieldId: string, value: string | string[]) => {
+  const handleInputChange = (fieldId: number, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [fieldId]: value }));
     // Clear error when user starts typing
     if (errors[fieldId]) {
@@ -27,7 +27,7 @@ const FormRenderer = ({ form, onSubmit, isPreview = false }: FormRendererProps) 
   };
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
+    const newErrors: Record<number, string> = {};
     
     form.fields.forEach(field => {
       if (field.required) {
