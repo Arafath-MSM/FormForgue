@@ -1,8 +1,6 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+import { Form, FormSubmission, CreateFormData, FormSubmissionData } from '../types/form';
 
-interface ApiResponse<T> {
-  data: T;
-}
+const API_BASE_URL = 'http://localhost:8000/api';
 
 class ApiService {
   private async request<T>(
@@ -13,6 +11,7 @@ class ApiService {
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
         ...options.headers,
       },
       ...options,
@@ -21,52 +20,53 @@ class ApiService {
     const response = await fetch(url, config);
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
 
     return response.json();
   }
 
   // Forms API
-  async getForms() {
-    return this.request('/forms');
+  async getForms(): Promise<Form[]> {
+    return this.request<Form[]>('/forms');
   }
 
-  async getForm(id: string) {
-    return this.request(`/forms/${id}`);
+  async getForm(id: number): Promise<Form> {
+    return this.request<Form>(`/forms/${id}`);
   }
 
-  async createForm(formData: any) {
-    return this.request('/forms', {
+  async createForm(formData: CreateFormData): Promise<Form> {
+    return this.request<Form>('/forms', {
       method: 'POST',
       body: JSON.stringify(formData),
     });
   }
 
-  async updateForm(id: string, formData: any) {
-    return this.request(`/forms/${id}`, {
+  async updateForm(id: number, formData: CreateFormData): Promise<Form> {
+    return this.request<Form>(`/forms/${id}`, {
       method: 'PUT',
       body: JSON.stringify(formData),
     });
   }
 
-  async deleteForm(id: string) {
-    return this.request(`/forms/${id}`, {
+  async deleteForm(id: number): Promise<void> {
+    return this.request<void>(`/forms/${id}`, {
       method: 'DELETE',
     });
   }
 
   // Submissions API
-  async getFormSubmissions(formId: string) {
-    return this.request(`/forms/${formId}/submissions`);
+  async getFormSubmissions(formId: number): Promise<FormSubmission[]> {
+    return this.request<FormSubmission[]>(`/forms/${formId}/submissions`);
   }
 
-  async getSubmission(submissionId: string) {
-    return this.request(`/submissions/${submissionId}`);
+  async getSubmission(submissionId: number): Promise<FormSubmission> {
+    return this.request<FormSubmission>(`/submissions/${submissionId}`);
   }
 
-  async submitForm(formId: string, submissionData: any) {
-    return this.request(`/forms/${formId}/submissions`, {
+  async submitForm(formId: number, submissionData: FormSubmissionData): Promise<FormSubmission> {
+    return this.request<FormSubmission>(`/forms/${formId}/submissions`, {
       method: 'POST',
       body: JSON.stringify({ data: submissionData }),
     });

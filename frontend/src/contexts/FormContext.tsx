@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from "react";
-import { Form, FormSubmission } from "@/types/form";
+import { Form, FormSubmission, CreateFormData } from "@/types/form";
 import { apiService } from "@/services/api";
 
 interface FormContextType {
@@ -7,14 +7,14 @@ interface FormContextType {
   submissions: FormSubmission[];
   loading: boolean;
   error: string | null;
-  addForm: (form: Omit<Form, "id" | "createdAt" | "updatedAt">) => Promise<Form>;
-  updateForm: (formId: string, updates: Partial<Form>) => Promise<void>;
-  deleteForm: (formId: string) => Promise<void>;
-  getForm: (formId: string) => Form | undefined;
-  addSubmission: (submission: Omit<FormSubmission, "id" | "submittedAt">) => Promise<void>;
-  getFormSubmissions: (formId: string) => FormSubmission[];
+  addForm: (formData: CreateFormData) => Promise<Form>;
+  updateForm: (formId: number, formData: CreateFormData) => Promise<void>;
+  deleteForm: (formId: number) => Promise<void>;
+  getForm: (formId: number) => Form | undefined;
+  addSubmission: (formId: number, data: Record<string, any>) => Promise<void>;
+  getFormSubmissions: (formId: number) => FormSubmission[];
   loadForms: () => Promise<void>;
-  loadFormSubmissions: (formId: string) => Promise<void>;
+  loadFormSubmissions: (formId: number) => Promise<void>;
 }
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
@@ -38,14 +38,14 @@ export function FormProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const loadFormSubmissions = async (formId: string) => {
+  const loadFormSubmissions = async (formId: number) => {
     try {
       setLoading(true);
       setError(null);
       const submissionsData = await apiService.getFormSubmissions(formId);
       // Update submissions for this form
       setSubmissions(prev => {
-        const otherSubmissions = prev.filter(s => s.formId !== formId);
+        const otherSubmissions = prev.filter(s => s.form_id !== formId);
         return [...otherSubmissions, ...submissionsData];
       });
     } catch (err) {
@@ -55,7 +55,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addForm = async (formData: Omit<Form, "id" | "createdAt" | "updatedAt">) => {
+  const addForm = async (formData: CreateFormData) => {
     try {
       setLoading(true);
       setError(null);
@@ -70,11 +70,11 @@ export function FormProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateForm = async (formId: string, updates: Partial<Form>) => {
+  const updateForm = async (formId: number, formData: CreateFormData) => {
     try {
       setLoading(true);
       setError(null);
-      const updatedForm = await apiService.updateForm(formId, updates);
+      const updatedForm = await apiService.updateForm(formId, formData);
       setForms(prev => prev.map(form => 
         form.id === formId ? updatedForm : form
       ));
@@ -86,13 +86,13 @@ export function FormProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const deleteForm = async (formId: string) => {
+  const deleteForm = async (formId: number) => {
     try {
       setLoading(true);
       setError(null);
       await apiService.deleteForm(formId);
       setForms(prev => prev.filter(form => form.id !== formId));
-      setSubmissions(prev => prev.filter(submission => submission.formId !== formId));
+      setSubmissions(prev => prev.filter(submission => submission.form_id !== formId));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete form');
       throw err;
@@ -101,15 +101,15 @@ export function FormProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getForm = (formId: string) => {
+  const getForm = (formId: number) => {
     return forms.find(form => form.id === formId);
   };
 
-  const addSubmission = async (submissionData: Omit<FormSubmission, "id" | "submittedAt">) => {
+  const addSubmission = async (formId: number, data: Record<string, any>) => {
     try {
       setLoading(true);
       setError(null);
-      const newSubmission = await apiService.submitForm(submissionData.formId, submissionData.data);
+      const newSubmission = await apiService.submitForm(formId, data);
       setSubmissions(prev => [...prev, newSubmission]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit form');
@@ -119,8 +119,8 @@ export function FormProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getFormSubmissions = (formId: string) => {
-    return submissions.filter(submission => submission.formId === formId);
+  const getFormSubmissions = (formId: number) => {
+    return submissions.filter(submission => submission.form_id === formId);
   };
 
   // Load forms on mount

@@ -23,9 +23,9 @@ const Sidebar = () => {
 
   return (
     <div className="flex h-screen w-64 flex-col bg-sidebar-background border-r border-border">
-      <div className="flex h-16 items-center px-6">
+      <div className="flex h-16 flex-col justify-center px-6">
         <h2 className="text-lg font-semibold text-sidebar-foreground">Form Builder</h2>
-        <p className="text-sm text-muted-foreground mt-1">Manage your forms</p>
+        <p className="text-sm text-muted-foreground">Manage your forms</p>
       </div>
       
       <nav className="flex-1 space-y-1 px-4 py-4">

@@ -9,15 +9,15 @@ const Forms = () => {
   const { forms, deleteForm, getFormSubmissions } = useFormContext();
   const navigate = useNavigate();
 
-  const handleEdit = (formId: string) => {
+  const handleEdit = (formId: number) => {
     navigate(`/builder?edit=${formId}`);
   };
 
-  const handlePreview = (formId: string) => {
+  const handlePreview = (formId: number) => {
     navigate(`/preview/${formId}`);
   };
 
-  const handleDelete = async (formId: string) => {
+  const handleDelete = async (formId: number) => {
     if (window.confirm("Are you sure you want to delete this form?")) {
       try {
         await deleteForm(formId);
@@ -27,7 +27,7 @@ const Forms = () => {
     }
   };
 
-  const handleViewSubmissions = (formId: string) => {
+  const handleViewSubmissions = (formId: number) => {
     navigate(`/submissions/${formId}`);
   };
 
@@ -104,7 +104,7 @@ const Forms = () => {
                   </div>
                   
                   <div className="text-xs text-muted-foreground">
-                    Created {new Date(form.createdAt).toLocaleDateString()}
+                    Created {new Date(form.created_at).toLocaleDateString()}
                   </div>
                 </CardContent>
               </Card>

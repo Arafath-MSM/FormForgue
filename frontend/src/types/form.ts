@@ -1,29 +1,56 @@
 export interface FormField {
-  id: string;
+  id: number;
+  form_id: number;
   type: 'text' | 'textarea' | 'checkbox' | 'radio';
   label: string;
   required: boolean;
   options?: string[];
   order: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Form {
-  id: string;
+  id: number;
   title: string;
   description?: string;
   fields: FormField[];
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SubmissionAnswer {
+  id: number;
+  submission_id: number;
+  field_id: number;
+  answer: string;
+  created_at: string;
+  updated_at: string;
+  field?: FormField;
 }
 
 export interface FormSubmission {
-  id: string;
-  formId: string;
-  data: Record<string, any>;
-  submittedAt: string;
-  ipAddress?: string;
+  id: number;
+  form_id: number;
+  ip_address?: string;
+  created_at: string;
+  updated_at: string;
+  answers: SubmissionAnswer[];
+  form?: Form;
 }
 
 export interface FormSubmissionData {
   [fieldId: string]: string | string[];
+}
+
+export interface CreateFormData {
+  title: string;
+  description?: string;
+  fields: {
+    label: string;
+    type: 'text' | 'textarea' | 'checkbox' | 'radio';
+    required: boolean;
+    options?: string[];
+    order: number;
+  }[];
 }

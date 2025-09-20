@@ -6,12 +6,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FormField } from "@/types/form";
-import { ChevronUp, ChevronDown, Trash2, Plus, X } from "lucide-react";
+import { ChevronUp, ChevronDown, Trash2, Plus, Trash, Copy } from "lucide-react";
 
 interface FieldEditorProps {
   field: FormField;
   onUpdate: (field: FormField) => void;
   onDelete: () => void;
+  onCopy: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
   canMoveUp: boolean;
@@ -22,6 +23,7 @@ const FieldEditor = ({
   field, 
   onUpdate, 
   onDelete, 
+  onCopy,
   onMoveUp, 
   onMoveDown, 
   canMoveUp, 
@@ -34,9 +36,11 @@ const FieldEditor = ({
   };
 
   const addOption = () => {
-    const options = field.options || [];
-    const optionNumber = options.length + 1;
-    updateField({ options: [...options, `Option ${optionNumber}`] });
+    if (newOption.trim()) {
+      const options = field.options || [];
+      updateField({ options: [...options, newOption.trim()] });
+      setNewOption("");
+    }
   };
 
   const removeOption = (index: number) => {
@@ -56,8 +60,8 @@ const FieldEditor = ({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className="font-medium">{fieldTypeNames[field.type]}</span>
-            <Badge variant="secondary" className="text-xs">{field.type}</Badge>
+            <Badge variant="secondary">{fieldTypeNames[field.type]}</Badge>
+            <span className="text-sm text-muted-foreground">{field.type}</span>
           </div>
           <div className="flex items-center space-x-1">
             <Button
@@ -75,6 +79,13 @@ const FieldEditor = ({
               disabled={!canMoveDown}
             >
               <ChevronDown className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onCopy}
+            >
+              <Copy className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
@@ -104,34 +115,32 @@ const FieldEditor = ({
             <div className="space-y-2">
               {field.options?.map((option, index) => (
                 <div key={index} className="flex items-center space-x-2">
-                  <Input 
-                    value={option} 
-                    onChange={(e) => {
-                      const newOptions = [...(field.options || [])];
-                      newOptions[index] = e.target.value;
-                      updateField({ options: newOptions });
-                    }}
-                    className="flex-1" 
-                  />
+                  <Input value={option} readOnly className="flex-1" />
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => removeOption(index)}
                     className="text-destructive hover:text-destructive"
                   >
-                    <X className="h-4 w-4" />
+                    <Trash className="h-4 w-4" />
                   </Button>
                 </div>
               ))}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={addOption}
-                className="w-full"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Option
-              </Button>
+              <div className="flex justify-start">
+                <Button onClick={addOption} variant="ghost" size="sm" className="text-primary hover:text-primary/80 p-0 h-auto font-normal">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Option
+                </Button>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Input
+                  value={newOption}
+                  onChange={(e) => setNewOption(e.target.value)}
+                  placeholder="Enter new option"
+                  onKeyPress={(e) => e.key === "Enter" && addOption()}
+                  className="flex-1"
+                />
+              </div>
             </div>
           </div>
         )}

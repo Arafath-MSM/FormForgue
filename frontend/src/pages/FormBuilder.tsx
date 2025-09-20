@@ -69,7 +69,7 @@ const FormBuilder = () => {
     }
   };
 
-  const saveForm = async () => {
+  const saveForm = () => {
     if (!formTitle.trim()) {
       toast({
         title: "Error",
@@ -85,29 +85,21 @@ const FormBuilder = () => {
       fields: fields.map((field, index) => ({ ...field, order: index }))
     };
 
-    try {
-      if (editFormId) {
-        await updateForm(editFormId, formData);
-        toast({
-          title: "Success",
-          description: "Form updated successfully"
-        });
-      } else {
-        await addForm(formData);
-        toast({
-          title: "Success", 
-          description: "Form created successfully"
-        });
-      }
-
-      navigate("/forms");
-    } catch (error) {
+    if (editFormId) {
+      updateForm(editFormId, formData);
       toast({
-        title: "Error",
-        description: "Failed to save form",
-        variant: "destructive"
+        title: "Success",
+        description: "Form updated successfully"
+      });
+    } else {
+      addForm(formData);
+      toast({
+        title: "Success", 
+        description: "Form created successfully"
       });
     }
+
+    navigate("/forms");
   };
 
   return (
@@ -129,31 +121,15 @@ const FormBuilder = () => {
       </div>
 
       <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Form Settings</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Form Title *</Label>
-              <Input
-                id="title"
-                value={formTitle}
-                onChange={(e) => setFormTitle(e.target.value)}
-                placeholder="Enter form title"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                value={formDescription}
-                onChange={(e) => setFormDescription(e.target.value)}
-                placeholder="Enter form description"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-2">
+          <Label htmlFor="title">Form Title *</Label>
+          <Input
+            id="title"
+            value={formTitle}
+            onChange={(e) => setFormTitle(e.target.value)}
+            placeholder="Enter form title"
+          />
+        </div>
 
         <Card>
           <CardHeader>
