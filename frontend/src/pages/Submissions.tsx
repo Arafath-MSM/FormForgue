@@ -29,6 +29,13 @@ const Submissions = () => {
     }
   }, [formId, loadFormSubmissions, getFormSubmissions]);
 
+  // Auto-select first submission when submissions are loaded
+  useEffect(() => {
+    if (submissions.length > 0 && !selectedSubmission) {
+      setSelectedSubmission(submissions[0].id.toString());
+    }
+  }, [submissions, selectedSubmission]);
+
 
   if (loading || submissionsLoading) {
     return (
@@ -140,8 +147,8 @@ const Submissions = () => {
                     return (
                       <div
                         key={submission.id}
-                        className={`p-4 cursor-pointer border-b hover:bg-muted/50 transition-colors ${
-                          isSelected ? "bg-muted" : ""
+                        className={`p-4 cursor-pointer border-b hover:bg-blue-50 transition-colors ${
+                          isSelected ? "bg-blue-100" : ""
                         }`}
                         onClick={() => setSelectedSubmission(submission.id.toString())}
                       >

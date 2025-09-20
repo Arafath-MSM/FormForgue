@@ -5,9 +5,12 @@ import {
   Plus, 
   BarChart3, 
   Eye, 
-  Settings 
+  Settings,
+  LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -20,6 +23,7 @@ const navigation = [
 
 const Sidebar = () => {
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   return (
     <div className="flex h-screen w-64 flex-col bg-sidebar-background border-r border-border">
@@ -51,6 +55,23 @@ const Sidebar = () => {
           );
         })}
       </nav>
+      
+      {/* User info and logout */}
+      <div className="border-t border-border p-4">
+        <div className="mb-3">
+          <p className="text-sm font-medium text-sidebar-foreground">{user?.name}</p>
+          <p className="text-xs text-muted-foreground">{user?.email}</p>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={logout}
+          className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          <LogOut className="mr-3 h-4 w-4" />
+          Logout
+        </Button>
+      </div>
     </div>
   );
 };

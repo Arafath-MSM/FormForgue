@@ -2,16 +2,23 @@ import { Form, FormSubmission, CreateFormData, FormSubmissionData } from '../typ
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
+// Get auth token from localStorage
+const getAuthToken = () => {
+  return localStorage.getItem('auth_token');
+};
+
 class ApiService {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
+    const token = getAuthToken();
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,
