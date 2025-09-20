@@ -48,7 +48,7 @@ const FormBuilder = () => {
       label: `${type.charAt(0).toUpperCase() + type.slice(1)} Field`,
       required: false,
       order: fields.length,
-      ...(type === "checkbox" || type === "radio" ? { options: ["Option 1", "Option 2"] } : {})
+      ...(type === "checkbox" || type === "radio" || type === "select" ? { options: ["Option 1", "Option 2"] } : {})
     };
     setFields([...fields, newField]);
   };
@@ -162,6 +162,7 @@ const FormBuilder = () => {
             <FieldTypeButton type="textarea" onClick={() => addField("textarea")} />
             <FieldTypeButton type="checkbox" onClick={() => addField("checkbox")} />
             <FieldTypeButton type="radio" onClick={() => addField("radio")} />
+            <FieldTypeButton type="select" onClick={() => addField("select")} />
           </CardContent>
         </Card>
 
