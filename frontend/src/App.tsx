@@ -4,7 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FormProvider } from "./contexts/FormContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import AppLayout from "./components/Layout/AppLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Forms from "./pages/Forms";
 import FormBuilder from "./pages/FormBuilder";
@@ -12,19 +14,26 @@ import FormPreview from "./pages/FormPreview";
 import Submissions from "./pages/Submissions";
 import AllSubmissions from "./pages/AllSubmissions";
 import Settings from "./pages/Settings";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <AuthProvider>
       <FormProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
             <Routes>
-            <Route path="/" element={<AppLayout />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }>
                 <Route index element={<Dashboard />} />
                 <Route path="forms" element={<Forms />} />
                 <Route path="builder" element={<FormBuilder />} />
@@ -38,6 +47,7 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </FormProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

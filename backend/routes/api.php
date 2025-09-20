@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\FormController;
 use App\Http\Controllers\Api\SubmissionController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,17 +16,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// // Authentication routes
-// Route::post('auth/login', [AuthController::class, 'login']);
-// Route::post('auth/register', [AuthController::class, 'register']);
+// Authentication routes
+Route::post('auth/login', [AuthController::class, 'login']);
+Route::post('auth/register', [AuthController::class, 'register']);
 
-// // Protected routes
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::post('auth/logout', [AuthController::class, 'logout']);
-//     Route::get('auth/user', [AuthController::class, 'user']);
+// Protected routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('auth/logout', [AuthController::class, 'logout']);
+    Route::get('auth/user', [AuthController::class, 'user']);
     
     Route::apiResource('forms', FormController::class);
     Route::post('forms/{form}/submissions', [SubmissionController::class, 'store']);
     Route::get('forms/{form}/submissions', [SubmissionController::class, 'index']);
     Route::get('submissions/{submission}', [SubmissionController::class, 'show']);
-// });
+});
