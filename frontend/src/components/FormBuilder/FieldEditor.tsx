@@ -30,6 +30,7 @@ const FieldEditor = ({
   canMoveDown 
 }: FieldEditorProps) => {
   const [newOption, setNewOption] = useState("");
+  const [showAddOptionInput, setShowAddOptionInput] = useState(false);
 
   const updateField = (updates: Partial<FormFieldBuilder>) => {
     onUpdate({ ...field, ...updates });
@@ -40,7 +41,19 @@ const FieldEditor = ({
       const options = field.options || [];
       updateField({ options: [...options, newOption.trim()] });
       setNewOption("");
+      setShowAddOptionInput(false);
     }
+  };
+
+  const handleAddOptionClick = () => {
+    setShowAddOptionInput(true);
+  };
+
+  const updateOption = (index: number, value: string) => {
+    const options = field.options || [];
+    const newOptions = [...options];
+    newOptions[index] = value;
+    updateField({ options: newOptions });
   };
 
   const removeOption = (index: number) => {
@@ -115,7 +128,12 @@ const FieldEditor = ({
             <div className="space-y-2">
               {field.options?.map((option, index) => (
                 <div key={index} className="flex items-center space-x-2">
-                  <Input value={option} readOnly className="flex-1" />
+                  <Input 
+                    value={option} 
+                    onChange={(e) => updateOption(index, e.target.value)}
+                    className="flex-1" 
+                    placeholder="Enter option text"
+                  />
                   <Button
                     variant="ghost"
                     size="sm"
@@ -126,21 +144,44 @@ const FieldEditor = ({
                   </Button>
                 </div>
               ))}
-              <div className="flex justify-start">
-                <Button onClick={addOption} variant="ghost" size="sm" className="text-primary hover:text-primary/80 p-0 h-auto font-normal">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Option
-                </Button>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Input
-                  value={newOption}
-                  onChange={(e) => setNewOption(e.target.value)}
-                  placeholder="Enter new option"
-                  onKeyPress={(e) => e.key === "Enter" && addOption()}
-                  className="flex-1"
-                />
-              </div>
+              
+              {!showAddOptionInput ? (
+                <div className="flex justify-start">
+                  <Button 
+                    onClick={handleAddOptionClick} 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-primary hover:text-primary/80 p-0 h-auto font-normal"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Option
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <Input
+                    value={newOption}
+                    onChange={(e) => setNewOption(e.target.value)}
+                    placeholder="Enter new option"
+                    onKeyPress={(e) => e.key === "Enter" && addOption()}
+                    className="flex-1"
+                    autoFocus
+                  />
+                  <Button onClick={addOption} variant="outline" size="sm" disabled={!newOption.trim()}>
+                    Add
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      setShowAddOptionInput(false);
+                      setNewOption("");
+                    }} 
+                    variant="ghost" 
+                    size="sm"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         )}
