@@ -16,6 +16,7 @@ interface FormContextType {
   getFormSubmissions: (formId: number) => FormSubmission[];
   loadForms: () => Promise<void>;
   loadFormSubmissions: (formId: number) => Promise<void>;
+  loadAllSubmissions: () => Promise<void>;
 }
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
@@ -69,6 +70,19 @@ export function FormProvider({ children }: { children: ReactNode }) {
       setSubmissionsLoading(false);
     }
   }, [submissions]);
+
+  const loadAllSubmissions = useCallback(async () => {
+    try {
+      setSubmissionsLoading(true);
+      setError(null);
+      const submissionsData = await apiService.getAllSubmissions();
+      setSubmissions(submissionsData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load submissions');
+    } finally {
+      setSubmissionsLoading(false);
+    }
+  }, []);
 
   const addForm = async (formData: CreateFormData) => {
     try {
@@ -157,7 +171,8 @@ export function FormProvider({ children }: { children: ReactNode }) {
     getFormSubmissions,
     loadForms,
     loadFormSubmissions,
-  }), [forms, submissions, loading, submissionsLoading, error, addForm, updateForm, deleteForm, getForm, addSubmission, getFormSubmissions, loadForms, loadFormSubmissions]);
+    loadAllSubmissions,
+  }), [forms, submissions, loading, submissionsLoading, error, addForm, updateForm, deleteForm, getForm, addSubmission, getFormSubmissions, loadForms, loadFormSubmissions, loadAllSubmissions]);
 
   return (
     <FormContext.Provider value={contextValue}>

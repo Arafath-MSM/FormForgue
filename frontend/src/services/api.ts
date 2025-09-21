@@ -57,6 +57,10 @@ class ApiService {
   }
 
   // Submissions API
+  async getAllSubmissions(): Promise<FormSubmission[]> {
+    return this.request<FormSubmission[]>('/submissions');
+  }
+
   async getFormSubmissions(formId: number): Promise<FormSubmission[]> {
     return this.request<FormSubmission[]>(`/forms/${formId}/submissions`);
   }

@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: '/FormForgue/', // <-- Added for GitHub Pages
+  // base: '/FormForgue/', // 
   server: {
     host: "::",
     port: 8080,

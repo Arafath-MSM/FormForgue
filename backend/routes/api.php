@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::apiResource('forms', FormController::class);
 
+Route::get('submissions', [SubmissionController::class, 'all']);
 Route::post('forms/{form}/submissions', [SubmissionController::class, 'store']);
 Route::get('forms/{form}/submissions', [SubmissionController::class, 'index']);
 Route::get('submissions/{submission}', [SubmissionController::class, 'show']);

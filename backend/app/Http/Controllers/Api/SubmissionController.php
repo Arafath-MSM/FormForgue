@@ -13,6 +13,18 @@ use Illuminate\Support\Facades\Validator;
 class SubmissionController extends Controller
 {
     /**
+     * Display a listing of all submissions.
+     */
+    public function all(): JsonResponse
+    {
+        $submissions = FormSubmission::with(['answers.field', 'form'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($submissions);
+    }
+
+    /**
      * Display a listing of submissions for a form.
      */
     public function index(Form $form): JsonResponse
